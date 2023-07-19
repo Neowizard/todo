@@ -1,5 +1,6 @@
+import re
 import json
-from flask import Flask, request, jsonify, send_file, redirect, render_template
+from flask import Flask, request, jsonify, redirect, render_template
 from flask_cors import CORS
 import os
 import string
@@ -26,16 +27,18 @@ def serve_todo_list(list_id):
     app.logger.info(f'Serving {list_id}')
     return render_template('index.html', list_id=list_id)
 
-
-@app.route('/<path:filename>')
-def serve_static(filename):
-
-    app.logger.info(f'Serving file {filename}')
-    return send_file(filename)
-
+def _verify_list_id(list_id):
+    alphanumeric = r'^[a-zA-Z0-9]+$'
+    match = re.match(alphanumeric, list_id)
+    print(match)
+    return match is not None
 
 @app.route('/todo/<list_id>', methods=['POST'])
 def save_task_list(list_id):
+    if not _verify_list_id(list_id):
+        print(f'List ID "{list_id}" is invalid')
+        return f'Invalid list id {list_id}', 400
+
     app.logger.info(f'Storing todos in {list_id}')
     todo_file = os.path.join('todos', f'{list_id}.txt')
     os.makedirs("todos", exist_ok=True)
@@ -50,6 +53,10 @@ def save_task_list(list_id):
 
 @app.route('/todo/<list_id>', methods=['GET'])
 def get_task_list(list_id):
+    if not _verify_list_id(list_id):
+        print(f'List ID "{list_id}" is invalid')
+        return f'Invalid list id {list_id}', 400
+
     app.logger.info(f'Fetching {list_id}')
     todo_file = os.path.join('todos', f'{list_id}.txt')
     try:
