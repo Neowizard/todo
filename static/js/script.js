@@ -2,6 +2,7 @@ const taskForm = document.getElementById('taskForm');
 const taskInput = document.getElementById('taskInput');
 const taskList = document.getElementById('taskList');
 const deleteSelectedButton = document.getElementById('deleteChecked');
+const checkAllButton = document.getElementById('checkAll');
 
 
 // Load tasks from local storage
@@ -58,6 +59,13 @@ deleteSelectedButton.addEventListener('click', (e) => {
     tasks = new_tasks_list;
     renderTasks()
 });
+
+checkAllButton.addEventListener('click', (e) => {
+    for (let i = 0; i < tasks.length; i++) {
+        tasks[i].completed = true;
+    }
+    renderTasks()
+})
 
 // Add event listener for task clicks
 taskList.addEventListener('click', (e) => {
