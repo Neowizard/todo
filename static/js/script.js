@@ -1,6 +1,8 @@
 const taskForm = document.getElementById('taskForm');
 const taskInput = document.getElementById('taskInput');
 const taskList = document.getElementById('taskList');
+const deleteSelectedButton = document.getElementById('deleteChecked');
+
 
 // Load tasks from local storage
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
@@ -12,9 +14,9 @@ function renderTasks() {
         const task = tasks[i];
         const li = document.createElement('li');
         li.innerHTML = `
+      <button class="deleteBtn">Delete</button>
       <input type="checkbox" ${task.completed ? 'checked' : ''}>
       <span class="${task.completed ? 'completed' : ''}">${task.title}</span>
-      <button class="deleteBtn">Delete</button>
     `;
         const checkbox = li.querySelector('input[type="checkbox"]');
         const deleteBtn = li.querySelector('.deleteBtn');
@@ -45,6 +47,17 @@ taskForm.addEventListener('submit', (e) => {
     }
 });
 
+deleteSelectedButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    new_tasks_list = [];
+    for (let i = 0; i < tasks.length; i++) {
+        if (!tasks[i].completed) {
+            new_tasks_list.push(tasks[i]);
+        }
+    }
+    tasks = new_tasks_list;
+    renderTasks()
+});
 
 // Add event listener for task clicks
 taskList.addEventListener('click', (e) => {
