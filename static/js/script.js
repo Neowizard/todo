@@ -21,13 +21,11 @@ function renderTasks() {
 
         checkbox.addEventListener('change', () => {
             task.completed = checkbox.checked;
-            updateLocalStorage();
             li.querySelector('span').classList.toggle('completed');
         });
 
         deleteBtn.addEventListener('click', () => {
             tasks.splice(i, 1);
-            updateLocalStorage();
             li.remove();
         });
 
@@ -42,16 +40,11 @@ taskForm.addEventListener('submit', (e) => {
     if (title !== '') {
         const task = {title, completed: false};
         tasks.push(task);
-        updateLocalStorage();
         taskInput.value = '';
         renderTasks();
     }
 });
 
-// Update local storage
-function updateLocalStorage() {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-}
 
 // Add event listener for task clicks
 taskList.addEventListener('click', (e) => {
@@ -59,7 +52,6 @@ taskList.addEventListener('click', (e) => {
         const li = e.target.parentNode;
         const index = Array.from(taskList.children).indexOf(li);
         tasks[index].completed = !tasks[index].completed;
-        updateLocalStorage();
         e.target.classList.toggle('completed');
         li.querySelector('input[type="checkbox"]').checked = tasks[index].completed;
     }
