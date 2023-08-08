@@ -27,11 +27,13 @@ def serve_todo_list(list_id):
     app.logger.info(f'Serving {list_id}')
     return render_template('index.html', list_id=list_id)
 
+
 def _verify_list_id(list_id):
     alphanumeric = r'^[a-zA-Z0-9]+$'
     match = re.match(alphanumeric, list_id)
     print(match)
     return match is not None
+
 
 @app.route('/todo/<list_id>', methods=['POST'])
 def save_task_list(list_id):
@@ -41,7 +43,6 @@ def save_task_list(list_id):
 
     app.logger.info(f'Storing todos in {list_id}')
     todo_file = os.path.join('todos', f'{list_id}.txt')
-    os.makedirs("todos", exist_ok=True)
     try:
         task_list = request.get_json(force=True)
         with open(todo_file, 'wt') as file:
@@ -70,5 +71,6 @@ def get_task_list(list_id):
 
 
 if __name__ == '__main__':
+    os.makedirs('todos', exist_ok=True)
     from waitress import serve
     serve(app, host='0.0.0.0', port=8080)
