@@ -1,7 +1,7 @@
 const taskForm = document.getElementById('taskForm');
 const taskInput = document.getElementById('taskInput');
 const taskList = document.getElementById('taskList');
-const deleteSelectedButton = document.getElementById('deleteChecked');
+const deleteCheckedButton = document.getElementById('deleteChecked');
 const checkAllButton = document.getElementById('checkAll');
 
 
@@ -48,7 +48,7 @@ taskForm.addEventListener('submit', (e) => {
     }
 });
 
-deleteSelectedButton.addEventListener('click', (e) => {
+deleteCheckedButton.addEventListener('click', (e) => {
     e.preventDefault();
     new_tasks_list = [];
     for (let i = 0; i < tasks.length; i++) {
@@ -126,6 +126,7 @@ function fetchTasks() {
         .then(response => response.json())
         .then(data => {
             tasks = data;
+            previousTaskList = JSON.stringify(tasks)
             renderTasks();
         })
         .catch(error => {
