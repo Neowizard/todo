@@ -3,22 +3,28 @@ import json
 from flask import Flask, request, jsonify, redirect, render_template
 from flask_cors import CORS
 import os
+import pathlib
 import string
 import random
+
+TODOS_DIR = pathlib.Path('todos')
 
 app = Flask(__name__)
 app.logger.setLevel('DEBUG')
 CORS(app)
 
 
-def generate_random_string(length):
-    characters = string.ascii_letters + string.digits
-    return ''.join(random.choice(characters) for _ in range(length))
+def generate_random_list_id(length):
+    list_id = ''
+    while (TODOS_DIR / list_id).exists():
+        characters = string.ascii_letters + string.digits
+        list_id = ''.join(random.choice(characters) for _ in range(length))
+    return list_id
 
 
 @app.route('/')
 def serve_root():
-    list_id = generate_random_string(8)
+    list_id = generate_random_list_id(length=16)
     return redirect(f'/{list_id}')
 
 
@@ -42,7 +48,7 @@ def save_task_list(list_id):
         return f'Invalid list id {list_id}', 400
 
     app.logger.info(f'Storing todos in {list_id}')
-    todo_file = os.path.join('todos', f'{list_id}.txt')
+    todo_file = os.path.join(TODOS_DIR, f'{list_id}.txt')
     try:
         task_list = request.get_json(force=True)
         with open(todo_file, 'wt') as file:
@@ -59,7 +65,7 @@ def get_task_list(list_id):
         return f'Invalid list id {list_id}', 400
 
     app.logger.info(f'Fetching {list_id}')
-    todo_file = os.path.join('todos', f'{list_id}.txt')
+    todo_file = os.path.join(TODOS_DIR, f'{list_id}.txt')
     try:
         with open(todo_file, 'rt') as file:
             task_list = json.load(file)
@@ -71,6 +77,6 @@ def get_task_list(list_id):
 
 
 if __name__ == '__main__':
-    os.makedirs('todos', exist_ok=True)
+    os.makedirs(TODOS_DIR, exist_ok=True)
     from waitress import serve
     serve(app, host='0.0.0.0', port=8080)
