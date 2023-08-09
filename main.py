@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify, redirect, render_template
 from flask_cors import CORS
 import os
 import pathlib
+import shutil
 import string
 import random
 
@@ -49,6 +50,13 @@ def save_task_list(list_id):
 
     app.logger.info(f'Storing todos in {list_id}')
     todo_file = TODOS_DIR / f'{list_id}.txt'
+    for i in range(10, 0, -1):
+        backup_file = todo_file.with_suffix(f'.{i}.txt')
+        source_file = todo_file.with_suffix(f'.{i-1}.txt')
+        if source_file.exists():
+            shutil.copy2(source_file, backup_file)
+    shutil.copy2(todo_file, todo_file.with_suffix('.0.txt'))
+
     try:
         task_list = request.get_json(force=True)
         with todo_file.open("wt") as file:
