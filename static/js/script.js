@@ -6,7 +6,7 @@ const checkAllButton = document.getElementById('checkAll');
 
 
 // Load tasks from local storage
-let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+let tasks = []
 
 // Render tasks
 function renderTasks() {
