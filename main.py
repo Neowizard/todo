@@ -48,10 +48,10 @@ def save_task_list(list_id):
         return f'Invalid list id {list_id}', 400
 
     app.logger.info(f'Storing todos in {list_id}')
-    todo_file = os.path.join(TODOS_DIR, f'{list_id}.txt')
+    todo_file = TODOS_DIR / f'{list_id}.txt'
     try:
         task_list = request.get_json(force=True)
-        with open(todo_file, 'wt') as file:
+        with todo_file.open("wt") as file:
             json.dump(task_list, file)
         return 'Task list saved successfully!', 200
     except Exception as e:
@@ -65,9 +65,9 @@ def get_task_list(list_id):
         return f'Invalid list id {list_id}', 400
 
     app.logger.info(f'Fetching {list_id}')
-    todo_file = os.path.join(TODOS_DIR, f'{list_id}.txt')
+    todo_file = TODOS_DIR / f'{list_id}.txt'
     try:
-        with open(todo_file, 'rt') as file:
+        with todo_file.open() as file:
             task_list = json.load(file)
         return jsonify(task_list), 200
     except FileNotFoundError:
