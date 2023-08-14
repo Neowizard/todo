@@ -50,12 +50,8 @@ def save_task_list(list_id):
 
     app.logger.info(f'Storing todos in {list_id}')
     todo_file = TODOS_DIR / f'{list_id}.txt'
-    for i in range(10, 0, -1):
-        backup_file = todo_file.with_suffix(f'.{i}.txt')
-        source_file = todo_file.with_suffix(f'.{i-1}.txt')
-        if source_file.exists():
-            shutil.copy2(source_file, backup_file)
-    shutil.copy2(todo_file, todo_file.with_suffix('.0.txt'))
+    if todo_file.exists():
+        backup_todo_list(todo_file)
 
     try:
         task_list = request.get_json(force=True)
@@ -64,6 +60,15 @@ def save_task_list(list_id):
         return 'Task list saved successfully!', 200
     except Exception as e:
         return f'Error saving task list: {str(e)}', 500
+
+
+def backup_todo_list(todo_file):
+    for i in range(10, 0, -1):
+        backup_file = todo_file.with_suffix(f'.{i}.txt')
+        source_file = todo_file.with_suffix(f'.{i - 1}.txt')
+        if source_file.exists():
+            shutil.copy2(source_file, backup_file)
+    shutil.copy2(todo_file, todo_file.with_suffix('.0.txt'))
 
 
 @app.route('/todo/<list_id>', methods=['GET'])
