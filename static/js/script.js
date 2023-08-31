@@ -46,21 +46,10 @@ function addDragDropEvents(li) {
 }
 
 function arrayMove(arr, from, to) {
-    let low;
-    let high;
-    if (from < to) {
-        low = from;
-        high = to;
-    } else {
-        low = to;
-        high = from;
-    }
-    const element_low = arr[low];
-    const element_high = arr[high];
-    const arr_start = arr.slice(0, low);
-    const arr_mid = arr.slice(low+1, high);
-    const arr_end = arr.slice(high+1);
-    return arr_start.concat(element_high).concat(arr_mid).concat(element_low).concat(arr_end);
+    const element = arr[from];
+    const new_arr = arr.slice(0, from).concat(arr.slice(from+1))
+    new_arr.splice(to, 0, element)
+    return new_arr
 }
 
 function createTaskLi(tasks, taskIdx) {
