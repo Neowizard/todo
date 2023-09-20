@@ -12,8 +12,8 @@
     <button type="button" id="checkAll">Check All</button>
     <button type="button" id="deleteChecked">Delete Checked</button>
 </form>
-<ul id="taskList"></ul>
-
-<script src="../static/js/script.js" data-list-id="{{ list_id }}"></script>
+<ul id="taskList" data-parameter="{{ list_id }}"></ul>
+<label id="savedIndicator" class="savedLbl"></label>
+<script type="module" src="../static/js/script.js"></script>
 </body>
 </html>
