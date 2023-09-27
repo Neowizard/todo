@@ -5,7 +5,7 @@ const taskForm = document.getElementById('taskForm');
 const taskInput = document.getElementById('taskInput');
 const deleteCheckedButton = document.getElementById('deleteChecked');
 const checkAllButton = document.getElementById('checkAll');
-const savedIndicator = document.getElementById('savedIndicator')
+const tasksTimestamp = document.getElementById('tasksTimestamp')
 const taskList = document.getElementById('taskList')
 const listId = taskList.dataset.parameter;
 
@@ -34,11 +34,20 @@ setInterval(async () => {
         const response = await backend.sendTaskList(tasks, listId);
         if (response.ok) {
             const now = new Date()
-            savedIndicator.textContent = `Saved: ${now.toLocaleString()}`
+            tasksTimestamp.textContent = `Saved: ${now.toLocaleString()}`
         }
     }
-}, 1000)
+}, 500)
 
+
+setInterval(async () => {
+    if (!hasTaskListChanged(tasks)) {
+        tasks = await backend.fetchTasks(listId);
+        tasksView.renderTasks(tasks)
+        const now = new Date()
+        tasksTimestamp.textContent = `Fetched: ${now.toLocaleString()}`
+    }
+}, 5000)
 
 taskForm.addEventListener('submit', (e) => {
     e.preventDefault();
