@@ -46,7 +46,7 @@ function createTaskLi(tasks, taskIdx) {
             span.textContent = editInput.value;
             task.title = span.textContent;
             li.replaceChild(span, editInput);
-            renderTasks();
+            renderTasks(tasks);
         }
     });
 
