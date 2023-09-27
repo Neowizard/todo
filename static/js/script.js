@@ -37,7 +37,7 @@ setInterval(async () => {
             savedIndicator.textContent = `Saved: ${now.toLocaleString()}`
         }
     }
-}, 5000)
+}, 1000)
 
 
 taskForm.addEventListener('submit', (e) => {
