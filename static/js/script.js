@@ -29,13 +29,17 @@ const hasTaskListChanged = (function () {
     });
 })();
 
+async function updateTaskList() {
+    const response = await backend.sendTaskList(tasks, listId);
+    if (response.ok) {
+        const now = new Date()
+        tasksTimestamp.textContent = `Saved: ${now.toLocaleString()}`
+    }
+}
+
 setInterval(async () => {
     if (hasTaskListChanged(tasks)) {
-        const response = await backend.sendTaskList(tasks, listId);
-        if (response.ok) {
-            const now = new Date()
-            tasksTimestamp.textContent = `Saved: ${now.toLocaleString()}`
-        }
+        await updateTaskList();
     }
 }, 500)
 
@@ -46,6 +50,9 @@ setInterval(async () => {
         tasksView.renderTasks(tasks)
         const now = new Date()
         tasksTimestamp.textContent = `Fetched: ${now.toLocaleString()}`
+    }
+    else {
+        await updateTaskList();
     }
 }, 5000)
 
