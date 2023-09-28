@@ -1,35 +1,11 @@
 import * as backend from './backend.js';
-import * as tasksView from './tasksView.js';
+import * as taskView from './taskView.js';
+import {TaskList} from './taskList.js';
 
-const taskForm = document.getElementById('taskForm');
-const taskInput = document.getElementById('taskInput');
-const deleteCheckedButton = document.getElementById('deleteChecked');
-const checkAllButton = document.getElementById('checkAll');
 const tasksTimestamp = document.getElementById('tasksTimestamp')
-const taskList = document.getElementById('taskList')
-const listId = taskList.dataset.parameter;
+const listId = document.getElementById('taskList').dataset.parameter;
 
-let tasks = null;
-backend.fetchTasks(listId).then(fetchedTasks => {
-    tasks = fetchedTasks;
-    tasksView.renderTasks(tasks);
-});
-
-
-const hasTaskListChanged = (function () {
-    let previousTaskList = null;
-
-    return (function (tasks) {
-        const currentTaskList = JSON.stringify(tasks);
-        if (currentTaskList !== previousTaskList) {
-            previousTaskList = currentTaskList;
-            return true;
-        }
-        return false;
-    });
-})();
-
-async function updateTaskList() {
+async function uploadTasksList(tasks) {
     const response = await backend.sendTaskList(tasks, listId);
     if (response.ok) {
         const now = new Date()
@@ -37,61 +13,46 @@ async function updateTaskList() {
     }
 }
 
+let tasksList = new TaskList([], uploadTasksList);
+
+function fetchTaskList() {
+    backend.fetchTasks(listId)
+        .then(fetchedTasks => {
+            tasksList = new TaskList(fetchedTasks, uploadTasksList);
+            taskView.renderTasks(tasksList);
+            const now = new Date()
+            tasksTimestamp.textContent = `Fetched: ${now.toLocaleString()}`
+        });
+}
+
 setInterval(async () => {
-    if (hasTaskListChanged(tasks)) {
-        await updateTaskList();
-    }
-}, 500)
+    fetchTaskList();
+}, 5000);
+fetchTaskList();
 
-
-setInterval(async () => {
-    if (!hasTaskListChanged(tasks)) {
-        tasks = await backend.fetchTasks(listId);
-        tasksView.renderTasks(tasks)
-        const now = new Date()
-        tasksTimestamp.textContent = `Fetched: ${now.toLocaleString()}`
-    }
-    else {
-        await updateTaskList();
-    }
-}, 5000)
-
+const taskForm = document.getElementById('taskForm');
 taskForm.addEventListener('submit', (e) => {
     e.preventDefault();
+    const taskInput = document.getElementById('taskInput');
     const title = taskInput.value.trim();
     if (title !== '') {
-        const task = {title, completed: false};
-        tasks.push(task);
+        const task = {title: title, completed: false};
+        tasksList.addTask(task);
+        taskView.renderTasks(tasksList)
         taskInput.value = '';
-        tasksView.renderTasks(tasks);
     }
 });
 
+const deleteCheckedButton = document.getElementById('deleteChecked');
 deleteCheckedButton.addEventListener('click', (e) => {
     e.preventDefault();
-    const new_tasks_list = [];
-    for (let i = 0; i < tasks.length; i++) {
-        if (!tasks[i].completed) {
-            new_tasks_list.push(tasks[i]);
-        }
-    }
-    tasks = new_tasks_list;
-    tasksView.renderTasks(tasks);
+    tasksList.deleteCompletedTasks()
+    taskView.renderTasks(tasksList)
 });
 
-checkAllButton.addEventListener('click', (e) => {
-    for (let i = 0; i < tasks.length; i++) {
-        tasks[i].completed = true;
-    }
-    tasksView.renderTasks(tasks);
+const checkAllButton = document.getElementById('checkAll');
+checkAllButton.addEventListener('click', () => {
+    tasksList.markAllTasksCompleted();
+    taskView.renderTasks(tasksList)
 })
 
-taskList.addEventListener('click', (e) => {
-    if (e.target.tagName === 'SPAN') {
-        const li = e.target.parentNode;
-        const index = Array.from(taskList.children).indexOf(li);
-        tasks[index].completed = !tasks[index].completed;
-        e.target.classList.toggle('completed');
-        li.querySelector('input[type="checkbox"]').checked = tasks[index].completed;
-    }
-});
