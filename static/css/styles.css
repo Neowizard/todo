@@ -97,3 +97,11 @@ ul {
 .timestampLbl {
     color: lightgray;
 }
+
+.versionLbl {
+    position: fixed;
+    bottom: 0;
+    righ: 0;
+    color: lightgray;
+    font-size: xx-small;
+}

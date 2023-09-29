@@ -1,5 +1,7 @@
 import re
 import json
+import sys
+
 from flask import Flask, request, jsonify, redirect, render_template
 from flask_cors import CORS
 import os
@@ -13,6 +15,8 @@ TODOS_DIR = pathlib.Path('todos')
 app = Flask(__name__)
 app.logger.setLevel('DEBUG')
 CORS(app)
+
+version = sys.argv[1] if len(sys.argv) >= 2 else 'nil'
 
 
 def generate_random_list_id(length):
@@ -32,7 +36,7 @@ def serve_root():
 @app.route('/<list_id>', methods=['GET'])
 def serve_todo_list(list_id):
     app.logger.info(f'Serving {list_id}')
-    return render_template('index.html', list_id=list_id)
+    return render_template('index.html', list_id=list_id, version=version)
 
 
 def _verify_list_id(list_id):
@@ -92,4 +96,5 @@ def get_task_list(list_id):
 if __name__ == '__main__':
     os.makedirs(TODOS_DIR, exist_ok=True)
     from waitress import serve
+
     serve(app, host='0.0.0.0', port=8080)
