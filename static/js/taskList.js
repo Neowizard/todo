@@ -1,60 +1,93 @@
 export class TaskList {
     constructor(tasks, uploadTasksList) {
+        this.listLocked = false;
         this.tasks = tasks;
         this.uploadTasksList = uploadTasksList;
-        this.changed = false;
     }
 
     length() {
         return this.tasks.length;
     }
 
-    addTask(task) {
-        this.tasks.push(task);
-        this.changed = true;
-        this.uploadTasksList(this.tasks);
-    }
-
-    deleteCompletedTasks() {
+    equalTasks(otherTasks) {
+        if (this.tasks.length !== otherTasks.length) {
+            return false;
+        }
         for (let i = 0; i < this.tasks.length; i++) {
-            if (this.tasks[i].completed) {
-                this.tasks.splice(i, 1);
+            if (this.tasks[i].title !== otherTasks[i].title || this.tasks[i].completed !== otherTasks[i].completed) {
+                return false
             }
         }
-        this.uploadTasksList(this.tasks);
+        return true
     }
 
-    markAllTasksCompleted() {
-        for (let i = 0; i < this.tasks.length; i++) {
-            this.tasks[i].completed = true;
+    equal(other) {
+        if (other instanceof TaskList) {
+            return this.equalTasks(other.tasks);
         }
-        this.uploadTasksList(this.tasks);
-    }
-
-    toggleTaskCompletedState(taskIndex) {
-        this.tasks[taskIndex].completed = !this.tasks[taskIndex].completed;
-        this.uploadTasksList(this.tasks);
+        return false
     }
 
     getTask(taskIdx) {
-        return this.tasks[taskIdx];
+        return {...this.tasks[taskIdx]};
     }
 
-    removeTask(taskIdx) {
-        this.tasks.splice(taskIdx, 1);
+    mutate(operation) {
+        this.listLocked = true;
+        operation();
         this.uploadTasksList(this.tasks);
+        this.listLocked = false;
+    }
+
+    addTask(task) {
+        this.mutate(() => {
+            this.tasks.push(task);
+        });
+    }
+
+    deleteCompletedTasks() {
+        this.mutate(() => {
+            for (let i = this.tasks.length-1; i >= 0; i--) {
+                if (this.tasks[i].completed) {
+                    this.tasks.splice(i, 1);
+                }
+            }
+        });
+    }
+
+    markAllTasksCompleted() {
+        this.mutate(() => {
+            for (let i = 0; i < this.tasks.length; i++) {
+                this.tasks[i].completed = true;
+            }
+        });
+    }
+
+    toggleTaskCompletedState(taskIndex) {
+        this.mutate(() => {
+            this.tasks[taskIndex].completed = !this.tasks[taskIndex].completed;
+        });
+    }
+
+
+    removeTask(taskIdx) {
+        this.mutate(() => {
+            this.tasks.splice(taskIdx, 1);
+        });
     }
 
     editTaskTitle(taskIdx, title) {
-        this.tasks[taskIdx].title = title;
-        this.uploadTasksList(this.tasks);
+        this.mutate(() => {
+            this.tasks[taskIdx].title = title;
+        });
     }
 
     moveTask(taskIndex, newIndex) {
-        const taskToMove = this.tasks[taskIndex];
-        this.tasks.splice(taskIndex, 1);
-        this.tasks.splice(newIndex, 0, taskToMove);
-        this.uploadTasksList(this.tasks);
+        this.mutate(() => {
+            const taskToMove = this.tasks[taskIndex];
+            this.tasks.splice(taskIndex, 1);
+            this.tasks.splice(newIndex, 0, taskToMove);
+        });
     }
 
 }

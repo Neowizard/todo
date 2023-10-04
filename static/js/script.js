@@ -15,18 +15,26 @@ async function uploadTasksList(tasks) {
 
 let tasksList = new TaskList([], uploadTasksList);
 
-function fetchTaskList() {
-    backend.fetchTasks(listId)
-        .then(fetchedTasks => {
+async function fetchTaskList() {
+    const oldTasks = Array.from(tasksList.tasks)
+    const fetchedTasks = await backend.fetchTasks(listId)
+    if (!tasksList.listLocked) {
+        if (tasksList.equalTasks(oldTasks)) {
             tasksList = new TaskList(fetchedTasks, uploadTasksList);
             taskView.renderTasks(tasksList);
             const now = new Date()
             tasksTimestamp.textContent = `Fetched: ${now.toLocaleString()}`
-        });
+        } else {
+            console.log(`Local tasks list changed during fetch. Dropping fetched list`)
+        }
+    } else {
+        console.log(`Local and fetched tasks lists are identical`)
+    }
 }
 
+
 setInterval(async () => {
-    fetchTaskList();
+    await fetchTaskList();
 }, 5000);
 fetchTaskList();
 
